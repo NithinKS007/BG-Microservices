@@ -1,0 +1,41 @@
+{
+  "name": "@blog-platform-micro-services/user-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate:dev": "npx prisma migrate dev",
+    "prisma:migrate:deploy": "npx prisma migrate deploy",
+    "prisma:seed": "npx prisma db seed",
+    "prisma:setup": "ts-node src/scripts/setup-initial-data.ts",
+    "prisma:pull": "npx prisma db pull",
+    "prisma:studio": "npx prisma studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^6.16.1",
+    "@types/express": "^5.0.3",
+    "awilix": "^12.0.5",
+    "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "kafkajs": "^2.2.4",
+    "prisma": "^6.17.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "prisma": {
+    "schema": "./prisma"
+  }
+}

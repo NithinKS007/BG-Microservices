@@ -1,0 +1,109 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    env_file:
+     -  ./user-service/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - backend
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    restart: always
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - backend
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    hostname: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--list", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    networks:
+      - backend
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    env_file:
+      - ./auth-service/.env
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    networks:
+      - backend
+
+  user:
+    build:
+      context: .
+      dockerfile: ./user-service/Dockerfile
+    env_file:
+      - ./user-service/.env
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    ports:
+      - "3002:3002"
+    networks:
+      - backend
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      auth:
+        condition: service_started
+      user:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge
