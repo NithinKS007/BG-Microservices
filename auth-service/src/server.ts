@@ -12,7 +12,7 @@ import {
   rateLimiter,
 } from "../../utils/src";
 import { IMessageService } from "interfaces/interfaces";
-import { envConfig } from "config/env.config";
+import { envConfig } from "./config/env.config";
 
 dotenv.config();
 

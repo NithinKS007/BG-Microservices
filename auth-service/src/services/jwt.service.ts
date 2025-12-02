@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { IJwtPayload, IJwtService } from "../interfaces/interfaces";
-import { envConfig } from "config/env.config";
+import { envConfig } from "../config/env.config";
 
 export class JwtService implements IJwtService {
   private readonly accessSecret: string;

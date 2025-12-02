@@ -1,6 +1,6 @@
 import { PrismaClient } from "../generated/prisma";
 import { logger } from "../../../utils/src";
-import { envConfig } from "src/config/env.config";
+import { envConfig } from "../config/env.config";
 
 /**
  * Create a PrismaClient instance with logging enabled.

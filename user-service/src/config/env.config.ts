@@ -1,6 +1,5 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 
-dotenv.config();
 interface Env {
   PORT: number;
   POSTGRES_USER: string;

@@ -4,7 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import { proxyServices } from "./config/service.proxy";
-import { envConfig } from "config/env.config";
+import { envConfig } from "./config/env.config";
 
 const app = express();
 
