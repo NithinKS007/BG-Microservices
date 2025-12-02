@@ -1,12 +1,10 @@
-import dotenv from "dotenv";
 import { sendResponse, logger, rateLimiter } from "../../utils/src";
 import express, { Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import { proxyServices } from "./config/service.proxy";
-
-dotenv.config();
+import { envConfig } from "config/env.config";
 
 const app = express();
 
@@ -14,7 +12,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: envConfig.CLIENT_URL || "*",
     credentials: true,
   })
 );
