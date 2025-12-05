@@ -1,11 +1,9 @@
 import { Kafka } from "kafkajs";
-import dotenv from "dotenv";
+import { envConfig } from "./env.config";
 
-dotenv.config();
-
-const CLIENT_ID = process.env.KAFKA_CLIENT_ID;
-const GROUP_ID = process.env.KAFKA_GROUP_ID;
-const BROKERS = process.env.KAFKA_BROKERS?.split(",").map((b) => b.trim());
+const CLIENT_ID = envConfig.KAFKA_CLIENT_ID;
+const GROUP_ID = envConfig.KAFKA_GROUP_ID;
+const BROKERS = envConfig.KAFKA_BROKERS?.split(",").map((b) => b.trim());
 
 if (!BROKERS) {
   throw new Error("Kafka brokers are required (KAFKA_BROKERS in .env).");

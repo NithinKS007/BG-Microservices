@@ -1,5 +1,6 @@
 import { PrismaClient } from "../generated/prisma";
 import { logger } from "../../../utils/src";
+import { envConfig } from "../config/env.config";
 
 /**
  * Create a PrismaClient instance with logging enabled.
@@ -31,7 +32,7 @@ export const prisma = new PrismaClient({
  * Hides password but shows host, port, and database name
  */
 export const getDatabaseInfo = (): string => {
-  const dbUrl = process.env.DATABASE_URL || "Not configured";
+  const dbUrl = envConfig.DATABASE_URL || "Not configured";
 
   if (dbUrl === "Not configured") {
     return dbUrl;

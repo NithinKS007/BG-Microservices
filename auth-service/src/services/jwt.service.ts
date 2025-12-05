@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { IJwtPayload, IJwtService } from "../interfaces/interfaces";
+import { envConfig } from "../config/env.config";
 
 export class JwtService implements IJwtService {
   private readonly accessSecret: string;
@@ -8,28 +9,28 @@ export class JwtService implements IJwtService {
   private readonly refreshExpiration: number;
 
   constructor() {
-    if (!process.env.ACCESS_TOKEN_SECRET) {
+    if (!envConfig.JWT_ACCESS_TOKEN_SECRET) {
       throw new Error("Missing ACCESS_TOKEN_SECRET in environment variables.");
     }
-    if (!process.env.REFRESH_TOKEN_SECRET) {
+    if (!envConfig.JWT_REFRESH_TOKEN_SECRET) {
       throw new Error("Missing REFRESH_TOKEN_SECRET in environment variables.");
     }
-    const accessExp = Number(process.env.ACCESS_TOKEN_EXPIRATION);
+    const accessExp = Number(envConfig.JWT_ACCESS_TOKEN_EXPIRATION);
     if (isNaN(accessExp)) {
       throw new Error(
         "Missing or invalid ACCESS_TOKEN_EXPIRATION in environment variables."
       );
     }
 
-    const refreshExp = Number(process.env.REFRESH_TOKEN_EXPIRATION);
+    const refreshExp = Number(envConfig.JWT_REFRESH_TOKEN_EXPIRATION);
     if (isNaN(refreshExp)) {
       throw new Error(
         "Missing or invalid REFRESH_TOKEN_EXPIRATION in environment variables."
       );
     }
 
-    this.accessSecret = process.env.ACCESS_TOKEN_SECRET;
-    this.refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+    this.accessSecret = envConfig.JWT_ACCESS_TOKEN_SECRET;
+    this.refreshSecret = envConfig.JWT_REFRESH_TOKEN_SECRET;
     this.accessExpiration = accessExp;
     this.refreshExpiration = refreshExp;
   }
