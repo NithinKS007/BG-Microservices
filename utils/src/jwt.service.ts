@@ -1,8 +1,18 @@
-import jwt from "jsonwebtoken";
-import { IJwtPayload, IJwtService } from "../interfaces/interfaces";
-import { envConfig } from "../config/env.config";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { envConfig } from "./env.config";
 
-export class JwtService implements IJwtService {
+export interface IJwtService {
+  createAccessToken(payload: IJwtPayload): Promise<string>;
+  createRefreshToken(payload: IJwtPayload): Promise<string>;
+  verifyAccessToken(token: string): Promise<IJwtPayload>;
+  verifyRefreshToken(token: string): Promise<IJwtPayload>;
+}
+
+export interface IJwtPayload extends JwtPayload {
+  id: string;
+  role: string;
+}
+class JwtService implements IJwtService {
   private readonly accessSecret: string;
   private readonly refreshSecret: string;
   private readonly accessExpiration: number;
@@ -17,16 +27,12 @@ export class JwtService implements IJwtService {
     }
     const accessExp = Number(envConfig.JWT_ACCESS_TOKEN_EXPIRATION);
     if (isNaN(accessExp)) {
-      throw new Error(
-        "Missing or invalid ACCESS_TOKEN_EXPIRATION in environment variables."
-      );
+      throw new Error("Missing or invalid ACCESS_TOKEN_EXPIRATION in environment variables.");
     }
 
     const refreshExp = Number(envConfig.JWT_REFRESH_TOKEN_EXPIRATION);
     if (isNaN(refreshExp)) {
-      throw new Error(
-        "Missing or invalid REFRESH_TOKEN_EXPIRATION in environment variables."
-      );
+      throw new Error("Missing or invalid REFRESH_TOKEN_EXPIRATION in environment variables.");
     }
 
     this.accessSecret = envConfig.JWT_ACCESS_TOKEN_SECRET;
@@ -37,29 +43,19 @@ export class JwtService implements IJwtService {
 
   async createAccessToken(payload: IJwtPayload): Promise<string> {
     return new Promise((resolve, reject) => {
-      jwt.sign(
-        payload,
-        this.accessSecret,
-        { expiresIn: this.accessExpiration },
-        (err, token) => {
-          if (err || !token) return reject(err);
-          resolve(token);
-        }
-      );
+      jwt.sign(payload, this.accessSecret, { expiresIn: this.accessExpiration }, (err, token) => {
+        if (err || !token) return reject(err);
+        resolve(token);
+      });
     });
   }
 
   async createRefreshToken(payload: IJwtPayload): Promise<string> {
     return new Promise((resolve, reject) => {
-      jwt.sign(
-        payload,
-        this.refreshSecret,
-        { expiresIn: this.refreshExpiration },
-        (err, token) => {
-          if (err || !token) return reject(err);
-          resolve(token);
-        }
-      );
+      jwt.sign(payload, this.refreshSecret, { expiresIn: this.refreshExpiration }, (err, token) => {
+        if (err || !token) return reject(err);
+        resolve(token);
+      });
     });
   }
 
@@ -91,3 +87,5 @@ export class JwtService implements IJwtService {
     });
   }
 }
+
+export const jwtService = new JwtService();

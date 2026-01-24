@@ -2,6 +2,15 @@ import { logger } from "../../utils/src";
 import { app } from "./app";
 import { envConfig } from "./config/env.config";
 
+/**
+ * Gracefully shuts down the server upon receiving termination signals.
+ * Performs any necessary cleanup before exiting the process.
+ *
+ * @async
+ * @function gracefulShutdown
+ * @param {string} signal - The signal received (e.g., SIGINT, SIGTERM).
+ */
+
 const gracefulShutdown = async (signal: string): Promise<void> => {
   console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
 
@@ -14,15 +23,34 @@ const gracefulShutdown = async (signal: string): Promise<void> => {
   }
 };
 
+/**
+ * Listen for termination signals and trigger graceful shutdown.
+ */
+
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
+/**
+ * Starts the Express server on the configured port.
+ * Logs server startup info and handles any startup errors.
+ *
+ * @function startServer
+ */
+
 const startServer = () => {
   try {
-    app.listen(envConfig.PORT, () => {
+    const server = app.listen(envConfig.PORT, () => {
       logger.info(
-        `Server is running on port ${envConfig.PORT} with service name "${envConfig.SERVICE_NAME}"`
+        `Server is running on port ${envConfig.PORT} with service name "${envConfig.SERVICE_NAME}"`,
       );
+    });
+    server.on("error", (error: NodeJS.ErrnoException) => {
+      if (error.code === "EADDRINUSE") {
+        console.error(`❌ Port ${envConfig.PORT} is already in use`);
+      } else {
+        console.error("❌ Server error:", error);
+      }
+      process.exit(1);
     });
   } catch (err: unknown) {
     if (err instanceof Error) {

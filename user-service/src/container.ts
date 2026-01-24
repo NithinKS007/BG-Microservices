@@ -1,7 +1,7 @@
 import { createContainer, asClass } from "awilix";
 import { UserService } from "./services/user.service";
 import { UserRepository } from "./repositories/user.repository";
-import { KafkaService } from "./services/kafka.service";
+import { KafkaService } from "../../utils/src/kafka.service";
 const container = createContainer();
 
 container.register({

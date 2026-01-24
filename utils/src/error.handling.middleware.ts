@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "./http.response";
 import { StatusCodes } from "./http.status.codes";
 
+/**
+ * Base class for application errors.
+ * Extends the default Error object with HTTP status code.
+ */
+
 export class AppError extends Error {
   statusCode: number;
   constructor(message: string, statusCode: number) {
@@ -9,6 +14,11 @@ export class AppError extends Error {
     this.statusCode = statusCode;
   }
 }
+
+/**
+ * Specific error types for common HTTP errors.
+ * Each class sets a default status code from StatusCodes.
+ */
 
 export class validationError extends AppError {
   constructor(message: string) {
@@ -52,12 +62,13 @@ export class InternalServerError extends AppError {
   }
 }
 
-export const errorMiddleware = (
-  err: AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+/**
+ * Express middleware to handle all AppError instances.
+ * Sends a standardized response using `sendResponse`.
+ * Falls back to 500 Internal Server Error if not specified.
+ */
+
+export const errorMiddleware = (err: AppError, req: Request, res: Response, next: NextFunction) => {
   const statusCode = err.statusCode || StatusCodes.InternalServerError;
   const message = err.message || "INTERNAL SERVER ERROR";
   sendResponse(res, statusCode, null, message);

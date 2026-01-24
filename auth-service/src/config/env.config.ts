@@ -11,6 +11,7 @@ interface Env {
   KAFKA_BROKERS: string;
   KAFKA_CLIENT_ID: string;
   KAFKA_GROUP_ID: string;
+  KAFKA_ENABLED: string;
 }
 
 export const envConfig: Env = {
@@ -27,4 +28,5 @@ export const envConfig: Env = {
   KAFKA_BROKERS: process.env.KAFKA_BROKERS || "kafka:9092",
   KAFKA_CLIENT_ID: process.env.KAFKA_CLIENT_ID || "blog-service",
   KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || "blog-service-group",
+  KAFKA_ENABLED: process.env.KAFKA_ENABLED || "true",
 };

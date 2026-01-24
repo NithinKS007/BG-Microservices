@@ -1,4 +1,4 @@
-import { sendResponse, logger, rateLimiter } from "../../utils/src";
+import { sendResponse, logger, RateLimiter } from "../../utils/src";
 import express, { Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -14,28 +14,42 @@ app.use(
   cors({
     origin: envConfig.CLIENT_URL || "*",
     credentials: true,
-  })
+  }),
 );
-app.use(rateLimiter);
+const limit = new RateLimiter();
+app.use(limit.apiGatewayLimiter());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check - must be before 404 and error handlers
+/**
+ * Health check endpoint.
+ * Used by load balancers or monitoring services to verify gateway is alive.
+ */
 app.get("/health", (req: Request, res: Response) => {
   sendResponse(res, 200, null, "OK");
 });
 
-// Proxy routes to underlying services
+/**
+ * Sets up proxy routes for underlying microservices.
+ * All requests to configured paths are forwarded to their respective services.
+ */
+
 proxyServices(app);
 
-// 404 handler - after all routes/proxies
+/**
+ * Handles all requests that do not match any route or proxy.
+ * Must be placed after all routes.
+ */
 app.use((req: Request, res: Response) => {
   logger.warn(`Resource not found [WARN] ${req.method} ${req.url}`);
   sendResponse(res, 404, null, "Not found");
 });
 
-// Global error handler - must be last
+/**
+ * Catches all unhandled errors from routes or middleware.
+ * Must be the last middleware in the stack.
+ */
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error(`Unhandled error [ERROR] ${err.message}`);
   sendResponse(res, 500, null, "Internal server error");

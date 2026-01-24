@@ -3,11 +3,12 @@ import { container } from "../container";
 import { AuthController } from "./../controllers/auth.controller";
 import { asyncHandler } from "../../../utils/src";
 
-const routerV1 = Router();
+const router = Router();
 
 const authController = container.resolve<AuthController>("authController");
 
-routerV1.post("/v1/signup",asyncHandler(authController.handle.bind(authController)));
+router.post("/signup", asyncHandler(authController.handle.bind(authController)));
+router.post("/sign-in", asyncHandler(authController.handle.bind(authController)));
+router.put("/reset-password", asyncHandler(authController.handle.bind(authController)));
 
-
-export { routerV1 };
+export { router };

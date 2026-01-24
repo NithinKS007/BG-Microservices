@@ -1,56 +1,81 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import helmet from "helmet";
-import dotenv from "dotenv";
-import { Request, Response } from "express";
-import { container } from "./container";
-
-import { routerV1 } from "./routes/auth.routes";
-import {
-  notFoundMiddleware,
-  errorMiddleware,
-  rateLimiter,
-} from "../../utils/src";
-import { IMessageService } from "interfaces/interfaces";
+import { KafkaService, logger } from "../../utils/src";
+import { app } from "./app";
 import { envConfig } from "./config/env.config";
 
-dotenv.config();
+/**
+ * Gracefully shuts down the server upon receiving termination signals.
+ * Performs any necessary cleanup before exiting the process.
+ *
+ * @async
+ * @function gracefulShutdown
+ * @param {string} signal - The signal received (e.g., SIGINT, SIGTERM).
+ */
 
-const app = express();
+const gracefulShutdown = async (signal: string): Promise<void> => {
+  console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
 
-app.use(helmet());
-app.use("/api", rateLimiter);
-app.use(express.json({ limit: "50mb" }));
-app.use(cookieParser());
+  try {
+    console.log("✅ Graceful shutdown completed");
+    process.exit(0);
+  } catch (error) {
+    console.error("❌ Error during graceful shutdown:", error);
+    process.exit(1);
+  }
+};
 
-// Health & basic routes
-app.get("/health", (req: Request, res: Response) => {
-  res.json({ status: "ok", service: "auth-service", port: envConfig.PORT });
-});
+/**
+ * Listen for termination signals and trigger graceful shutdown.
+ */
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: `message send from server ${envConfig.PORT}` });
-});
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
-// API routes
-app.use("/api", routerV1);
+/**
+ * Starts the Express server on the configured port.
+ * Logs server startup info and handles any startup errors.
+ *
+ * @function startServer
+ */
 
-// Error handling
-app.use(notFoundMiddleware);
-app.use(errorMiddleware);
+const startServer = async () => {
+  try {
+    const server = app.listen(envConfig.PORT, () => {
+      logger.info(
+        `Server is running on port ${envConfig.PORT} with service name "${envConfig.SERVICE_NAME}"`,
+      );
+    });
 
-// Kafka connections
-const messageService = container.resolve<IMessageService>("messageService");
-messageService
-  .connectProducer()
-  .then(() => console.log("Producer connected."))
-  .catch((err: Error) => console.error(err));
-messageService
-  .connectConsumer()
-  .then(() => console.log("Consumer connected."))
-  .catch((err: Error) => console.error(err));
+    /** Connect producer and consumer */
+    const CLIENT_ID = envConfig.KAFKA_CLIENT_ID;
+    const GROUP_ID = envConfig.KAFKA_GROUP_ID;
+    const BROKERS = envConfig.KAFKA_BROKERS?.split(",").map((b) => b.trim());
 
-// Start server
-app.listen(envConfig.PORT, () => {
-  console.log(`Server is running on port ${envConfig.PORT}.`);
-});
+    const kafkaService = new KafkaService({
+      brokers: BROKERS,
+      clientId: CLIENT_ID,
+      groupId: GROUP_ID,
+    });
+
+    if (envConfig.KAFKA_ENABLED === "true") {
+      await kafkaService.connectProducer();
+      await kafkaService.connectConsumer();
+    }
+    server.on("error", (error: NodeJS.ErrnoException) => {
+      if (error.code === "EADDRINUSE") {
+        console.error(`❌ Port ${envConfig.PORT} is already in use`);
+      } else {
+        console.error("❌ Server error:", error);
+      }
+      process.exit(1);
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      logger.error(`Error starting server [ERROR] ${err.message}`);
+    } else {
+      logger.error(`Error starting server [ERROR] ${JSON.stringify(err)}`);
+    }
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -52,7 +52,22 @@ services:
       start_period: 20s
     networks:
       - backend
-
+  gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      auth:
+        condition: service_started
+      user:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+      
   auth:
     build:
       context: .
@@ -85,19 +100,17 @@ services:
     networks:
       - backend
 
-  gateway:
+  saga-orchestrator:
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: ./saga-orchestrator-service/Dockerfile
     env_file:
-      - ./api-gateway/.env
+      - ./saga-orchestrator-service/.env
     depends_on:
-      auth:
-        condition: service_started
-      user:
-        condition: service_started
+      kafka:
+        condition: service_healthy
     ports:
-      - "3000:3000"
+      - "3004:3004"
     networks:
       - backend
 

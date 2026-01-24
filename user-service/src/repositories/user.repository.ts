@@ -1,51 +1,18 @@
-import { Prisma, PrismaClient } from "src/generated/prisma";
-import { IBaseRepository } from "../../../utils/src";
+import { PrismaClient, Prisma } from "../generated/prisma/client";
+import { PrismaAdapter } from "../../../utils/src/IBase.repository";
+import { BaseRepository } from "./base.repository";
 
-type UserModel = Prisma.UserGetPayload<{}>
-type UserDelegate = PrismaClient["user"];
+type TModel = Prisma.UserGetPayload<Prisma.UserFindUniqueArgs>;
+type TCreate = Prisma.UserCreateArgs["data"];
+type TUpdate = Prisma.UserUpdateArgs["data"];
+type TWhere = Prisma.UserWhereInput;
 
-type CreateArgs = Prisma.UserCreateArgs;
-type FindUniqueArgs = Prisma.UserFindUniqueArgs;
-type FindFirstArgs = Prisma.UserFindFirstArgs;
-type UpdateArgs = Prisma.UserUpdateArgs;
-type DeleteArgs = Prisma.UserDeleteArgs;
-
-export class UserRepository
-  implements
-    IBaseRepository<
-      UserModel,
-      CreateArgs,
-      FindUniqueArgs,
-      FindFirstArgs,
-      UpdateArgs,
-      DeleteArgs
-    >
-{
-  private prisma: PrismaClient;
-  private delegate: UserDelegate;
-
-  constructor({ prisma }: { prisma: PrismaClient }) {
-    this.prisma = prisma;
-    this.delegate = prisma.user;
+export class UserRepository extends BaseRepository<TModel, TCreate, TUpdate, TWhere> {
+  constructor({ prisma }: { prisma: PrismaClient | Prisma.TransactionClient }) {
+    super(new PrismaAdapter(prisma.user));
   }
 
-  async create(args: CreateArgs): Promise<UserModel> {
-    return this.delegate.create(args);
-  }
-
-  async findById(args: FindUniqueArgs): Promise<UserModel | null> {
-    return this.delegate.findUnique(args);
-  }
-
-  async findOne(args: FindFirstArgs): Promise<UserModel | null> {
-    return this.delegate.findFirst(args);
-  }
-
-  async updateById(args: UpdateArgs): Promise<UserModel> {
-    return this.delegate.update(args);
-  }
-
-  async deleteById(args: DeleteArgs): Promise<UserModel> {
-    return this.delegate.delete(args);
+  findByEmail(email: string) {
+    return this.findOne({ email });
   }
 }

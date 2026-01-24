@@ -8,6 +8,11 @@ interface Env {
   USER_SERVICE_URL: string;
   BLOG_SERVICE_URL: string;
   CLIENT_URL: string;
+
+  JWT_ACCESS_TOKEN_SECRET: string;
+  JWT_ACCESS_TOKEN_EXPIRATION: number;
+  JWT_REFRESH_TOKEN_SECRET: string;
+  JWT_REFRESH_TOKEN_EXPIRATION: number;
 }
 
 export const envConfig: Env = {
@@ -18,4 +23,9 @@ export const envConfig: Env = {
   USER_SERVICE_URL: process.env.USER_SERVICE_URL || "http://localhost:3002",
   BLOG_SERVICE_URL: process.env.BLOG_SERVICE_URL || "http://localhost:3003",
   CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
+
+  JWT_ACCESS_TOKEN_SECRET: process.env.JWT_ACCESS_TOKEN_SECRET || "secret",
+  JWT_ACCESS_TOKEN_EXPIRATION: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION || 3600),
+  JWT_REFRESH_TOKEN_SECRET: process.env.JWT_REFRESH_TOKEN_SECRET || "secret",
+  JWT_REFRESH_TOKEN_EXPIRATION: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION || 86400),
 };

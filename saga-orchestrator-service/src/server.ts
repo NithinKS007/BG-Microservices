@@ -1,15 +1,12 @@
 import { KafkaService, logger } from "../../utils/src";
 import { app } from "./app";
 import { envConfig } from "./config/env.config";
-import { closePrisma, connectPrisma } from "./utils/dbconfig";
 
 const gracefulShutdown = async (signal: string): Promise<void> => {
   console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
 
   try {
-    // Close database connection
-    await closePrisma();
-
+    /** Close database connection */
     console.log("✅ Graceful shutdown completed");
     process.exit(0);
   } catch (error) {
@@ -38,13 +35,12 @@ const startServer = async () => {
   try {
     console.log("🚀 Starting POS Backend Server...!");
 
-    // Connect to Database
-    const databaseConnected = await connectPrisma();
+    const server = app.listen(envConfig.PORT, () => {
+      logger.info(
+        `Server is running on port ${envConfig.PORT} with service name "${envConfig.SERVICE_NAME}"`,
+      );
+    });
 
-    if (!databaseConnected) {
-      console.error("❌ Failed to connect to database. Exiting...");
-      process.exit(1);
-    }
     /** Connect producer and consumer */
     const CLIENT_ID = envConfig.KAFKA_CLIENT_ID;
     const GROUP_ID = envConfig.KAFKA_GROUP_ID;
@@ -60,12 +56,6 @@ const startServer = async () => {
       await kafkaService.connectProducer();
       await kafkaService.connectConsumer();
     }
-
-    const server = app.listen(envConfig.PORT, () => {
-      logger.info(
-        `Server is running on port ${envConfig.PORT} with service name "${envConfig.SERVICE_NAME}"`,
-      );
-    });
 
     server.on("error", (error: NodeJS.ErrnoException) => {
       if (error.code === "EADDRINUSE") {

@@ -1,6 +1,7 @@
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from "../generated/prisma/client";
 import { logger } from "../../../utils/src";
 import { envConfig } from "../config/env.config";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 /**
  * Create a PrismaClient instance with logging enabled.
@@ -12,7 +13,10 @@ import { envConfig } from "../config/env.config";
  * The errorFormat 'pretty' formats error messages for readability.
  */
 
+const adapter = new PrismaPg({ connectionString: envConfig.DATABASE_URL });
+
 export const prisma = new PrismaClient({
+  adapter,
   log: ["query", "info", "warn", "error"],
   errorFormat: "pretty",
 }).$extends({
@@ -65,10 +69,7 @@ export const connectPrisma = async (): Promise<boolean> => {
     return true;
   } catch (err: unknown) {
     if (err instanceof Error) logger.error(err.message);
-    else
-      logger.error(
-        `Unknown error connecting to Prisma [ERROR] ${JSON.stringify(err)}`
-      );
+    else logger.error(`Unknown error connecting to Prisma [ERROR] ${JSON.stringify(err)}`);
     process.exit(1);
   }
 };
@@ -85,9 +86,7 @@ export const closePrisma = async (): Promise<void> => {
     if (err instanceof Error) {
       logger.error(err.message);
     } else {
-      logger.error(
-        `Unknown error disconnecting Prisma [ERROR] ${JSON.stringify(err)}`
-      );
+      logger.error(`Unknown error disconnecting Prisma [ERROR] ${JSON.stringify(err)}`);
     }
     process.exit(1);
   }

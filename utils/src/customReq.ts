@@ -1,6 +1,6 @@
 import { Request } from "express";
 export interface CustomReq extends Request {
-  user?: {
+  user: {
     id: string;
     role: string;
   };
