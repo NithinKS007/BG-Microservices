@@ -1,44 +1,40 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { envConfig } from "./env.config";
 
-export interface IJwtService {
-  createAT(payload: IJwtPayload): Promise<string>;
-  createRT(payload: IJwtPayload): Promise<string>;
-  verifyAT(token: string): Promise<IJwtPayload>;
-  verifyRT(token: string): Promise<IJwtPayload>;
+export interface Env {
+  JWT_ACCESS_TOKEN_SECRET: string;
+  JWT_ACCESS_TOKEN_EXPIRATION: number;
+  JWT_REFRESH_TOKEN_SECRET: string;
+  JWT_REFRESH_TOKEN_EXPIRATION: number;
 }
 
 export interface IJwtPayload extends JwtPayload {
   id: string;
   role: string;
 }
-export class JwtService implements IJwtService {
+export class JwtService {
   private readonly accessSecret: string;
   private readonly refreshSecret: string;
   private readonly accessExpiration: number;
   private readonly refreshExpiration: number;
 
-  constructor() {
-    if (!envConfig.JWT_ACCESS_TOKEN_SECRET) {
-      throw new Error("Missing ACCESS_TOKEN_SECRET in environment variables.");
+  constructor({
+    accessSecret,
+    refreshSecret,
+    accessExpiration,
+    refreshExpiration,
+  }: {
+    accessSecret: string;
+    refreshSecret: string;
+    accessExpiration: number;
+    refreshExpiration: number;
+  }) {
+    if (!accessSecret || !refreshSecret || !accessExpiration || !refreshExpiration) {
+      throw new Error("JwtService constructor requires ");
     }
-    if (!envConfig.JWT_REFRESH_TOKEN_SECRET) {
-      throw new Error("Missing REFRESH_TOKEN_SECRET in environment variables.");
-    }
-    const accessExp = Number(envConfig.JWT_ACCESS_TOKEN_EXPIRATION);
-    if (isNaN(accessExp)) {
-      throw new Error("Missing or invalid ACCESS_TOKEN_EXPIRATION in environment variables.");
-    }
-
-    const refreshExp = Number(envConfig.JWT_REFRESH_TOKEN_EXPIRATION);
-    if (isNaN(refreshExp)) {
-      throw new Error("Missing or invalid REFRESH_TOKEN_EXPIRATION in environment variables.");
-    }
-
-    this.accessSecret = envConfig.JWT_ACCESS_TOKEN_SECRET;
-    this.refreshSecret = envConfig.JWT_REFRESH_TOKEN_SECRET;
-    this.accessExpiration = accessExp;
-    this.refreshExpiration = refreshExp;
+    this.accessSecret = accessSecret;
+    this.refreshSecret = refreshSecret;
+    this.accessExpiration = accessExpiration;
+    this.refreshExpiration = refreshExpiration;
   }
 
   async createAT(payload: IJwtPayload): Promise<string> {

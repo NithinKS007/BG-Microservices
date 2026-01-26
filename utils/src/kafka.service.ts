@@ -17,12 +17,6 @@ import { Kafka, EachMessagePayload, ProducerRecord, Message, Producer, Consumer 
  * @constant {Kafka} kafkaConnect - Kafka instance used to create producers & consumers.
  */
 
-export interface KafkaConfig {
-  clientId: string;
-  groupId: string;
-  brokers: string[];
-}
-
 export interface PublishMessageParams<T> {
   topic: string;
   message: T;
@@ -38,9 +32,15 @@ export class KafkaService {
   private readonly consumer: Consumer;
   private readonly groupId: string;
 
-  constructor(config: KafkaConfig) {
-    const { clientId, groupId, brokers } = config;
-
+  constructor({
+    clientId,
+    groupId,
+    brokers,
+  }: {
+    clientId: string;
+    groupId: string;
+    brokers: string[];
+  }) {
     if (!brokers || brokers.length === 0) {
       throw new Error("Kafka brokers are required");
     }

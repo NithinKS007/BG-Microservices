@@ -10,3 +10,4 @@ export { codeGenerator } from "./code-generator";
 export { logger } from "./logger";
 export { DatabaseAdapter } from "./IBase.repository";
 export { KafkaService } from "./kafka.service";
+export { JwtService } from "./jwt.service";
