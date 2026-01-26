@@ -1,5 +1,5 @@
 services:
-  postgres:
+  user-service-db:
     image: postgres:15
     restart: always
     env_file:
@@ -110,7 +110,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "3004:3004"
+      - "3003:3003"
     networks:
       - backend
 

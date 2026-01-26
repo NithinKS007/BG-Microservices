@@ -1,4 +1,6 @@
-import { KafkaService, logger } from "../../utils/src";
+import { container } from "./container";
+import { KafkaService } from "../../utils/src/kafka.service";
+import { logger } from "../../utils/src/logger";
 import { app } from "./app";
 import { envConfig } from "./config/env.config";
 import { closePrisma, connectPrisma } from "./utils/dbconfig";
@@ -46,15 +48,8 @@ const startServer = async () => {
       process.exit(1);
     }
     /** Connect producer and consumer */
-    const CLIENT_ID = envConfig.KAFKA_CLIENT_ID;
-    const GROUP_ID = envConfig.KAFKA_GROUP_ID;
-    const BROKERS = envConfig.KAFKA_BROKERS?.split(",").map((b) => b.trim());
 
-    const kafkaService = new KafkaService({
-      brokers: BROKERS,
-      clientId: CLIENT_ID,
-      groupId: GROUP_ID,
-    });
+    const kafkaService = container.resolve<KafkaService>("kafkaService");
 
     if (envConfig.KAFKA_ENABLED === "true") {
       await kafkaService.connectProducer();

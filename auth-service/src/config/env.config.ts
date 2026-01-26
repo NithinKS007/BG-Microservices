@@ -26,7 +26,7 @@ export const envConfig: Env = {
     process.env.JWT_REFRESH_TOKEN_EXPIRATION || 86400
   ),
   KAFKA_BROKERS: process.env.KAFKA_BROKERS || "kafka:9092",
-  KAFKA_CLIENT_ID: process.env.KAFKA_CLIENT_ID || "blog-service",
-  KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || "blog-service-group",
+  KAFKA_CLIENT_ID: process.env.KAFKA_CLIENT_ID || "auth-service",
+  KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || "auth-service-group",
   KAFKA_ENABLED: process.env.KAFKA_ENABLED || "true",
 };

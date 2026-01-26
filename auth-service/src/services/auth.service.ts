@@ -1,9 +1,11 @@
-import { IAuthService } from "../interfaces/interfaces";
-
-export class AuthService implements IAuthService {
+export class AuthService {
   constructor() {}
 
-  signUp(data: { name: string; email: string; password: string }): Promise<void> {
+  signup(data: { name: string; email: string; password: string }): Promise<void> {
+    return Promise.resolve();
+  }
+
+  signin(data: { email: string; password: string }): Promise<void> {
     return Promise.resolve();
   }
 }

@@ -4,7 +4,7 @@ import { createProxyMiddleware, Options } from "http-proxy-middleware";
 import { logger } from "../../../utils/src";
 import { ClientRequest, IncomingMessage, ServerResponse } from "http";
 import { Socket } from "net";
-import { authenticate } from "middlewares/auth.middleware";
+import { authenticate } from "./../middlewares/auth.middleware";
 
 export interface IServiceConfig {
   path: string;
@@ -36,13 +36,6 @@ class ServiceProxy {
       url: envConfig.AUTH_SERVICE_URL,
       pathRewrite: { "^/auth-service": "/api/v1/auth" },
       name: "auth-service",
-      timeout: 5000,
-    },
-    {
-      path: "/blog-service",
-      url: envConfig.BLOG_SERVICE_URL,
-      pathRewrite: { "^/blog-service": "/api/v1/blogs" },
-      name: "blog-service",
       timeout: 5000,
     },
   ];

@@ -32,14 +32,7 @@ export interface MessageHandler<T> {
   (payload: T): Promise<void>;
 }
 
-export interface IMessageService {
-  consumeMessages<T>(data: { topic: string; handler: MessageHandler<T> }): Promise<void>;
-  publishMessage<T>(params: PublishMessageParams<T>): Promise<void>;
-  connectProducer(): Promise<void>;
-  connectConsumer(): Promise<void>;
-}
-
-export class KafkaService implements IMessageService {
+export class KafkaService {
   private readonly kafka: Kafka;
   private readonly producer: Producer;
   private readonly consumer: Consumer;

@@ -1,10 +1,12 @@
-import { IUserService } from "../interface/interface";
-import { IUserRepository } from "../interface/IUser.repository";
+import { IUserRepository, UserModel } from "../interface/IUser.repository";
 
-export class UserService implements IUserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+export class UserService {
+  private readonly userRepository: IUserRepository;
+  constructor({ userRepository }: { userRepository: IUserRepository }) {
+    this.userRepository = userRepository;
+  }
 
-  create(): Promise<void> {
-    return Promise.resolve();
+  async findUserById(id: string): Promise<UserModel | null> {
+    return await this.userRepository.findUserById(id);
   }
 }

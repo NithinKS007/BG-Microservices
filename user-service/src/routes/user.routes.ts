@@ -1,12 +1,12 @@
 import { Router } from "express";
+import { container } from "../container";
+import { UserController } from "./../controllers/user.controller";
+import { asyncHandler } from "../../../utils/src";
 
 const router = Router();
 
-router.get("/users/:id");
-router.put("/users/:id");
-router.delete("/users/:id");
-router.get("/users");
+const userController = container.resolve<UserController>("userController");
 
-
+router.post("/:id", asyncHandler(userController.findUserById.bind(userController)));
 
 export { router };

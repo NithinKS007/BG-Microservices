@@ -1,5 +1,5 @@
-import { IBaseRepository } from "../../../utils/src";
-import { Prisma, PrismaClient } from "src/generated/prisma";
+import { DatabaseAdapter } from "../../../utils/src/IBase.repository";
+import { Prisma, PrismaClient } from "../generated/prisma/client";
 
 // --- Prisma Model Types ---
 export type UserModel = Prisma.UserGetPayload<{}>;
@@ -14,32 +14,24 @@ export type UserDelegate = PrismaClient["user"];
 
 // --- DTOs (for API or Service Layer) ---
 export interface CreateUserData {
-  fullName: string;
-  email: string;
-  password?: string;
-  code?: string;
-  tenantId: string;
-  outletIds?: string[];
-  status?: "active" | "inactive";
+  email: String;
+  name: String;
+  password: String;
 }
 
 export interface UpdateUserData {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  status?: "active" | "inactive" | "suspended";
-  lastLoginAt?: Date;
-  passwordChangedAt?: Date;
+  email: String;
+  name: String;
+  password: String;
 }
 
-export interface IUserRepository
-  extends IBaseRepository<
-    Partial<UserModel>,
-    Partial<UserModel>,
-    Partial<UserModel>,
-    Partial<UserModel>,
-    Partial<UserModel>,
-    Partial<UserModel>
-  > {
-  findByEmail(email: string): Promise<UserModel | null>;
+export interface IUserRepository extends DatabaseAdapter<
+  Partial<UserModel>,
+  Partial<UserModel>,
+  Partial<UserModel>,
+  Partial<UserModel>
+> {
+  findUserByEmail(email: string): Promise<UserModel | null>;
+  createUser(data: CreateUserData): Promise<UserModel>;
+  findUserById(id: string): Promise<UserModel | null>;
 }

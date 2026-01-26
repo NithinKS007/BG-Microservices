@@ -7,8 +7,7 @@ const router = Router();
 
 const authController = container.resolve<AuthController>("authController");
 
-router.post("/signup", asyncHandler(authController.handle.bind(authController)));
-router.post("/sign-in", asyncHandler(authController.handle.bind(authController)));
-router.put("/reset-password", asyncHandler(authController.handle.bind(authController)));
+router.post("/signup", asyncHandler(authController.signup.bind(authController)));
+router.post("/sign-in", asyncHandler(authController.signin.bind(authController)));
 
 export { router };

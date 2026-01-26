@@ -2,17 +2,17 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { envConfig } from "./env.config";
 
 export interface IJwtService {
-  createAccessToken(payload: IJwtPayload): Promise<string>;
-  createRefreshToken(payload: IJwtPayload): Promise<string>;
-  verifyAccessToken(token: string): Promise<IJwtPayload>;
-  verifyRefreshToken(token: string): Promise<IJwtPayload>;
+  createAT(payload: IJwtPayload): Promise<string>;
+  createRT(payload: IJwtPayload): Promise<string>;
+  verifyAT(token: string): Promise<IJwtPayload>;
+  verifyRT(token: string): Promise<IJwtPayload>;
 }
 
 export interface IJwtPayload extends JwtPayload {
   id: string;
   role: string;
 }
-class JwtService implements IJwtService {
+export class JwtService implements IJwtService {
   private readonly accessSecret: string;
   private readonly refreshSecret: string;
   private readonly accessExpiration: number;
@@ -41,7 +41,7 @@ class JwtService implements IJwtService {
     this.refreshExpiration = refreshExp;
   }
 
-  async createAccessToken(payload: IJwtPayload): Promise<string> {
+  async createAT(payload: IJwtPayload): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(payload, this.accessSecret, { expiresIn: this.accessExpiration }, (err, token) => {
         if (err || !token) return reject(err);
@@ -50,7 +50,7 @@ class JwtService implements IJwtService {
     });
   }
 
-  async createRefreshToken(payload: IJwtPayload): Promise<string> {
+  async createRT(payload: IJwtPayload): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(payload, this.refreshSecret, { expiresIn: this.refreshExpiration }, (err, token) => {
         if (err || !token) return reject(err);
@@ -59,7 +59,7 @@ class JwtService implements IJwtService {
     });
   }
 
-  async verifyAccessToken(token: string): Promise<IJwtPayload> {
+  async verifyAT(token: string): Promise<IJwtPayload> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.accessSecret, (err, decoded) => {
         if (err) return reject(err);
@@ -73,7 +73,7 @@ class JwtService implements IJwtService {
     });
   }
 
-  async verifyRefreshToken(token: string): Promise<IJwtPayload> {
+  async verifyRT(token: string): Promise<IJwtPayload> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.refreshSecret, (err, decoded) => {
         if (err) return reject(err);
@@ -87,5 +87,3 @@ class JwtService implements IJwtService {
     });
   }
 }
-
-export const jwtService = new JwtService();

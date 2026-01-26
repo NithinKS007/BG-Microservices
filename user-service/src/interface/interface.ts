@@ -1,9 +1,0 @@
-
-
-export interface IBaseController {
-  handle(request: Request, response: Response): Promise<void>;
-}
-
-export interface IUserService {
-  create(): Promise<void>;
-}
