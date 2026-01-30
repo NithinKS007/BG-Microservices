@@ -9,4 +9,8 @@ export class UserService {
   async findUserById(id: string): Promise<UserModel | null> {
     return await this.userRepository.findUserById(id);
   }
+
+  async createUser(data: UserModel): Promise<UserModel> {
+    return await this.userRepository.createUser(data);
+  }
 }

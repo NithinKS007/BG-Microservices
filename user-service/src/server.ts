@@ -70,6 +70,7 @@ const startServer = async () => {
       }
       process.exit(1);
     });
+
   } catch (err: unknown) {
     if (err instanceof Error) {
       logger.error(err.message);
