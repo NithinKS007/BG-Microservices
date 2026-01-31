@@ -12,6 +12,8 @@ interface Env {
   KAFKA_CLIENT_ID: string;
   KAFKA_GROUP_ID: string;
   KAFKA_ENABLED: string;
+
+  USER_SERVICE_URL: string;
 }
 
 export const envConfig: Env = {
@@ -29,4 +31,7 @@ export const envConfig: Env = {
   KAFKA_CLIENT_ID: process.env.KAFKA_CLIENT_ID || "auth-service",
   KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || "auth-service-group",
   KAFKA_ENABLED: process.env.KAFKA_ENABLED || "true",
+
+  //GRPC
+  USER_SERVICE_URL: process.env.USER_SERVICE_URL || "user:3002",
 };

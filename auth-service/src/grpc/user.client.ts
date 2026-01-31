@@ -1,3 +1,4 @@
+import { envConfig } from "../config/env.config";
 import {
   createGrpcClient,
   fromGrpcError,
@@ -7,7 +8,7 @@ import {
 import { UserServiceClient, SignupUserRequest, SignupUserResponse } from "../../../utils/src";
 
 export class UserServiceGrpcClient {
-  private client = createGrpcClient(UserServiceClient, "localhost:50051");
+  private client = createGrpcClient(UserServiceClient,envConfig.USER_SERVICE_URL || "user:3002");
 
   signupUser(data: SignupUserRequest): Promise<SignupUserResponse> {
     return new Promise((resolve, reject) => {
