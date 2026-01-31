@@ -3,6 +3,7 @@ model User {
   email     String   @unique
   name      String
   password  String
+  role      String
   createdAt DateTime @default(now()) @map("_createdAt")
   updatedAt DateTime @updatedAt @map("_updatedAt")
 

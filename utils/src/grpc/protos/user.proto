@@ -2,16 +2,40 @@ syntax = "proto3";
 
 package user;
 
+import "google/protobuf/timestamp.proto";
+
 service UserService {
-  rpc RegisterUser(RegisterRequest) returns (RegisterResponse);
+  rpc SignupUser(SignupUserRequest) returns (SignupUserResponse);
+  rpc SigninUser(SigninUserRequest) returns (SigninUserResponse);
 }
 
-message RegisterRequest {
+message SignupUserRequest {
   string name = 1;
   string email = 2;
   string password = 3;
 }
 
-message RegisterResponse {
+message SignupUserResponse {
   bool success = 1;
+  string message = 2;
+}
+
+message SigninUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  google.protobuf.Timestamp updatedAt = 6;
+}
+
+message SigninUserResponse {
+  bool success = 1;
+  string message = 2;
+  User user = 3;
 }

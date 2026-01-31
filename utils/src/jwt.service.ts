@@ -9,6 +9,7 @@ export interface Env {
 
 export interface IJwtPayload extends JwtPayload {
   id: string;
+  email: string;
   role: string;
 }
 export class JwtService {
@@ -63,7 +64,7 @@ export class JwtService {
         if (!decoded || typeof decoded === "string") {
           return reject(new Error("Invalid token payload"));
         }
-        const payload = { id: decoded.id, role: decoded.role };
+        const payload = { id: decoded.id, role: decoded.role, email: decoded.email };
         resolve(payload);
       });
     });
@@ -77,7 +78,7 @@ export class JwtService {
         if (!decoded || typeof decoded === "string") {
           return reject(new Error("Invalid token payload"));
         }
-        const payload = { id: decoded.id, role: decoded.role };
+        const payload = { id: decoded.id, role: decoded.role, email: decoded.email };
         resolve(payload);
       });
     });

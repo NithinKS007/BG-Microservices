@@ -20,7 +20,7 @@ export class AppError extends Error {
  * Each class sets a default status code from StatusCodes.
  */
 
-export class validationError extends AppError {
+export class ValidationError extends AppError {
   constructor(message: string) {
     super(message, StatusCodes.BadRequest);
   }

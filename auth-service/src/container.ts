@@ -3,6 +3,7 @@ import { AuthController } from "./controllers/auth.controller";
 import { AuthService } from "./services/auth.service";
 import { KafkaService, JwtService } from "../../utils/src";
 import { envConfig } from "./config/env.config";
+import { UserServiceGrpcClient } from "./grpc/user.client";
 
 const container = createContainer();
 const clientId = envConfig.KAFKA_CLIENT_ID;
@@ -32,6 +33,7 @@ container.register({
       accessExpiration,
       refreshExpiration,
     })),
+  userServiceGrpcClient: asClass(UserServiceGrpcClient).scoped(),
 });
 
 export { container };

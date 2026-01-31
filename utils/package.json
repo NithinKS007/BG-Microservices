@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generate": "grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\ts-proto.cmd --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js,env=node,esModuleInterop=true -I ./proto ./proto/*.proto"
+    "_comment_grpc:generate": "This will read .proto files from src/grpc/protos => This will read .proto files from src/grpc/protos =>Use src/grpc/buf.gen.yaml as template",
+    "grpc:generate": "buf generate src/grpc --template src/grpc/buf.gen.yaml"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
     "@bufbuild/protobuf": "^2.11.0",
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0",
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "express-rate-limit": "^8.1.0",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@bufbuild/buf": "^1.64.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/express-rate-limit": "^5.1.3",
     "@types/jsonwebtoken": "^9.0.10",

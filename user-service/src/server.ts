@@ -4,6 +4,7 @@ import { logger } from "../../utils/src/logger";
 import { app } from "./app";
 import { envConfig } from "./config/env.config";
 import { closePrisma, connectPrisma } from "./utils/dbconfig";
+import { startUserGrpcServer } from "./grpc/start.server";
 
 const gracefulShutdown = async (signal: string): Promise<void> => {
   console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
@@ -62,6 +63,8 @@ const startServer = async () => {
       );
     });
 
+    startUserGrpcServer();
+
     server.on("error", (error: NodeJS.ErrnoException) => {
       if (error.code === "EADDRINUSE") {
         console.error(`❌ Port ${envConfig.PORT} is already in use`);
@@ -70,7 +73,6 @@ const startServer = async () => {
       }
       process.exit(1);
     });
-
   } catch (err: unknown) {
     if (err instanceof Error) {
       logger.error(err.message);
