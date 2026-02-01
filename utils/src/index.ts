@@ -11,3 +11,21 @@ export { logger } from "./logger";
 export { DatabaseAdapter } from "./IBase.repository";
 export { KafkaService } from "./kafka.service";
 export { JwtService } from "./jwt.service";
+export { createGrpcClient } from "./grpc/grpc.client";
+export { startGrpcServer, GrpcHandler, GrpcServiceDef } from "./grpc/grpc.server";
+export {
+  SigninUserRequest,
+  SigninUserResponse,
+  SignupUserRequest,
+  SignupUserResponse,
+  UserServiceClient,
+  DeepPartial,
+  Exact,
+  UserServiceServer,
+  UserServiceService,
+  protobufPackage,
+} from "./grpc/generated/user";
+export { SendUnaryData, ServerUnaryCall } from "./grpc/types";
+export { toGrpcError, fromGrpcError } from "./grpc/grpc.error.mapper";
+export { hashPassword, comparePassword } from "./hash";
+export { validateDto } from "./validate.dtos";

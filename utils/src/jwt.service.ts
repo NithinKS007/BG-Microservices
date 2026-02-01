@@ -9,6 +9,7 @@ export interface Env {
 
 export interface IJwtPayload extends JwtPayload {
   id: string;
+  email: string;
   role: string;
 }
 export class JwtService {
@@ -28,9 +29,14 @@ export class JwtService {
     accessExpiration: number;
     refreshExpiration: number;
   }) {
-    if (!accessSecret || !refreshSecret || !accessExpiration || !refreshExpiration) {
-      throw new Error("JwtService constructor requires ");
+    if (!accessSecret || !refreshSecret) {
+      throw new Error("JwtService requires secrets");
     }
+
+    if (!accessExpiration || !refreshExpiration) {
+      throw new Error("JwtService requires expiration config");
+    }
+
     this.accessSecret = accessSecret;
     this.refreshSecret = refreshSecret;
     this.accessExpiration = accessExpiration;
@@ -63,7 +69,7 @@ export class JwtService {
         if (!decoded || typeof decoded === "string") {
           return reject(new Error("Invalid token payload"));
         }
-        const payload = { id: decoded.id, role: decoded.role };
+        const payload = { id: decoded.id, role: decoded.role, email: decoded.email };
         resolve(payload);
       });
     });
@@ -77,7 +83,7 @@ export class JwtService {
         if (!decoded || typeof decoded === "string") {
           return reject(new Error("Invalid token payload"));
         }
-        const payload = { id: decoded.id, role: decoded.role };
+        const payload = { id: decoded.id, role: decoded.role, email: decoded.email };
         resolve(payload);
       });
     });

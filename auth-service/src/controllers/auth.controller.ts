@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
-import { sendResponse } from "../../../utils/src";
+import { sendResponse, StatusCodes } from "../../../utils/src";
+import { validateDto } from "../../../utils/src";
 import { AuthService } from "services/auth.service";
+import { SigninRequestDto, SignupRequestDto } from "../dtos/auth.dto";
 
 export class AuthController {
   private readonly authService: AuthService;
@@ -9,14 +11,15 @@ export class AuthController {
   }
 
   async signup(req: Request, res: Response): Promise<void> {
-    const data = req.body;
-    const result = await this.authService.signup(data);
-    sendResponse(res, 201, result, "User created successfully");
+    const data = await validateDto(SignupRequestDto, req.body);
+    await this.authService.signup(data);
+    sendResponse(res, StatusCodes.Created, null, "User created successfully");
   }
 
   async signin(req: Request, res: Response): Promise<void> {
-    const data = req.body;
+    const data = await validateDto(SigninRequestDto, req.body);
     const result = await this.authService.signin(data);
-    sendResponse(res, 201, result, "User created successfully");
+    const { name, accessToken, refreshToken } = result;
+    sendResponse(res, StatusCodes.OK, { name, accessToken, refreshToken }, "Login successfully");
   }
 }

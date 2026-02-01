@@ -19,8 +19,6 @@ app.use(
 const limit = new RateLimiter();
 app.use(limit.apiGatewayLimiter());
 app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 /**
  * Health check endpoint.

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedError } from "../../../utils/src/error.handling.middleware";
 import { JwtService } from "../../../utils/src/jwt.service";
-import { container } from "container";
+import { container } from "../container";
 /**
  * Authentication middleware that validates the JWT access token
  * provided in the Authorization header. If valid, it extracts the

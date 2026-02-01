@@ -5,6 +5,7 @@ import { KafkaService } from "../../utils/src/kafka.service";
 import { UserController } from "./controllers/user.controller";
 import { envConfig } from "./config/env.config";
 import { prisma } from "./utils/dbconfig";
+import { UserGrpcController } from "./grpc/user.server";
 
 const container = createContainer();
 const clientId = envConfig.KAFKA_CLIENT_ID;
@@ -26,6 +27,7 @@ container.register({
       groupId,
     })),
   userController: asClass(UserController).scoped(),
+  userGrpcController: asClass(UserGrpcController).scoped(),
 });
 
 export { container };
