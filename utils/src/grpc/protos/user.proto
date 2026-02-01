@@ -25,11 +25,16 @@ message SigninUserRequest {
   string password = 2;
 }
 
+enum Role {
+  user = 0;
+  admin = 1;
+}
+
 message User {
   string id = 1;
   string name = 2;
   string email = 3;
-  string role = 4;
+  optional Role role = 4;
   optional google.protobuf.Timestamp createdAt = 5;
   optional google.protobuf.Timestamp updatedAt = 6;
 }

@@ -13,9 +13,14 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
-  async findUserById(id: string): Promise<UserEntity | null> {
+  async findUserById(id: string): Promise<UserEntity> {
     if (!id) throw new ValidationError("User id is required");
-    return await this.userRepository.findUserById(id);
+    const user = await this.userRepository.findUserById(id);
+
+    if (!user) throw new NotFoundError("User not found,Please try again later");
+
+    const role = this.mapRole(user.role);
+    return { ...user, role };
   }
 
   async signup(data: { name: string; email: string; password: string }): Promise<void> {
@@ -38,6 +43,16 @@ export class UserService {
     if (!isPasswordValid) throw new ValidationError("Password is incorrect");
 
     const { password: userPassword, ...safeUser } = userData;
-    return safeUser;
+
+    const role = this.mapRole(userData.role);
+
+    return { ...safeUser, role };
+  }
+
+  private mapRole(role: "admin" | "user" | null): "admin" | "user" | undefined {
+    if (role === "admin" || role === "user") {
+      return role;
+    }
+    return undefined;
   }
 }

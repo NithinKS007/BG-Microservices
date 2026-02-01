@@ -24,6 +24,7 @@ export {
   UserServiceServer,
   UserServiceService,
   protobufPackage,
+  Role,
 } from "./grpc/generated/user";
 export { SendUnaryData, ServerUnaryCall } from "./grpc/types";
 export { toGrpcError, fromGrpcError } from "./grpc/grpc.error.mapper";

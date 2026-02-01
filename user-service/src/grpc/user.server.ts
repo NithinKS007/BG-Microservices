@@ -1,5 +1,5 @@
 import { UserService } from "../services/user.service";
-import { toGrpcError, SigninUserRequest, SigninUserResponse } from "../../../utils/src/index";
+import { toGrpcError, SigninUserRequest, SigninUserResponse, Role } from "../../../utils/src/index";
 import { ServerUnaryCall, SendUnaryData } from "../../../utils/src/index";
 import { SignupUserRequest, SignupUserResponse } from "../../../utils/src/index";
 
@@ -32,7 +32,11 @@ export class UserGrpcController {
     this.userService
       .signin({ email, password })
       .then((user) =>
-        callback(null, { success: true, message: "User signed in successfully", user }),
+        callback(null, {
+          success: true,
+          message: "User signed in successfully",
+          user: { ...user, role: user.role as unknown as Role },
+        }),
       )
       .catch((err) => callback(toGrpcError(err), null));
   }
