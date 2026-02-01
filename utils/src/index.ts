@@ -28,3 +28,4 @@ export {
 export { SendUnaryData, ServerUnaryCall } from "./grpc/types";
 export { toGrpcError, fromGrpcError } from "./grpc/grpc.error.mapper";
 export { hashPassword, comparePassword } from "./hash";
+export { validateDto } from "./validate.dtos";

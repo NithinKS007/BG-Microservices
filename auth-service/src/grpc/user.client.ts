@@ -8,7 +8,7 @@ import {
 import { UserServiceClient, SignupUserRequest, SignupUserResponse } from "../../../utils/src";
 
 export class UserServiceGrpcClient {
-  private client = createGrpcClient(UserServiceClient,envConfig.USER_SERVICE_URL || "user:3002");
+  private client = createGrpcClient(UserServiceClient,envConfig.USER_SERVICE_URL_GRPC || "user:50051");
 
   signupUser(data: SignupUserRequest): Promise<SignupUserResponse> {
     return new Promise((resolve, reject) => {

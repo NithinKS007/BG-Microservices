@@ -9,9 +9,8 @@ import { authenticate } from "./../middlewares/auth.middleware";
 export interface IServiceConfig {
   path: string;
   url: string;
-  pathRewrite?: Record<string, string>;
   name: string;
-  timeout?: number;
+  publicRoutes: string[];
 }
 
 class ServiceProxy {
@@ -25,18 +24,16 @@ class ServiceProxy {
 
   private static readonly serviceConfig: IServiceConfig[] = [
     {
-      path: "/user-service",
-      url: envConfig.USER_SERVICE_URL,
-      pathRewrite: { "^/user-service": "/api/v1/users" },
-      name: "user-service",
-      timeout: 5000,
-    },
-    {
+      name: "auth-service",
       path: "/auth-service",
       url: envConfig.AUTH_SERVICE_URL,
-      pathRewrite: { "^/auth-service": "/api/v1/auth" },
-      name: "auth-service",
-      timeout: 5000,
+      publicRoutes: ["/api/v1/auth/sign-in", "/api/v1/auth/signup", "/health"],
+    },
+    {
+      name: "user-service",
+      path: "/user-service",
+      url: envConfig.USER_SERVICE_URL,
+      publicRoutes: ["/health"],
     },
   ];
 
@@ -53,9 +50,11 @@ class ServiceProxy {
     return {
       target: service.url,
       changeOrigin: true,
-      pathRewrite: service.pathRewrite,
-      timeout: service.timeout ?? envConfig.DEFAULT_TIMEOUT,
-      logger: logger,
+      timeout: envConfig.DEFAULT_TIMEOUT,
+      logger,
+      pathRewrite: {
+        [`^${service.path}`]: "",
+      },
       on: {
         error: ServiceProxy.handleProxyError,
         proxyReq: ServiceProxy.handleProxyRequest,
@@ -81,7 +80,7 @@ class ServiceProxy {
   ): void {
     if (res instanceof ServerResponse) {
       logger.error(
-        `Proxy error: ${err.message} ${req.method} ${req.url} ${res.statusCode} ${res.statusMessage}`,
+        `Proxy error: ${err} ${req.method} ${req.url} ${res.statusCode} ${res.statusMessage}`,
       );
       res.statusCode = 503;
       res.setHeader("Content-Type", "application/json");
@@ -112,7 +111,7 @@ class ServiceProxy {
 
   private static handleProxyRequest(
     proxyReq: ClientRequest,
-    req: IncomingMessage,
+    req: IncomingMessage & { body?: any },
     res: ServerResponse,
   ): void {
     if (req.headers["x-user-id"]) proxyReq.setHeader("x-user-id", req.headers["x-user-id"]);
@@ -120,7 +119,12 @@ class ServiceProxy {
 
     const requestId = req.headers["x-request-id"] || `${Date.now()}-${Math.random()}`;
     proxyReq.setHeader("x-request-id", requestId);
-
+    if (req.body && typeof req.body === "object") {
+      const bodyData = JSON.stringify(req.body);
+      proxyReq.setHeader("Content-Type", "application/json");
+      proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+      proxyReq.write(bodyData);
+    }
     logger.info(`Proxying request ${req.method} ${req.url}`);
   }
 
@@ -153,16 +157,26 @@ class ServiceProxy {
 
   public static setupProxy(app: Application): void {
     ServiceProxy.serviceConfig.forEach((service) => {
-      const proxyOptions = ServiceProxy.createProxyOptions(service);
+      const proxy = createProxyMiddleware(ServiceProxy.createProxyOptions(service));
 
-      app.use(
-        `${service.path}/public`,
-        createProxyMiddleware({ ...proxyOptions, pathRewrite: service.pathRewrite }),
-      );
+      // 1. Register PUBLIC routes first
+      // We use a specific match to ensure these bypass the global service auth
+      if (service.publicRoutes && service.publicRoutes.length > 0) {
+        service.publicRoutes.forEach((route) => {
+          const fullPath = `${service.path}${route}`;
+          // Use app.all or app.use with the specific path to ensure high priority
+          app.all(fullPath, proxy);
+          logger.info(`Registered Public Route: [${service.name}] ${fullPath}`);
+        });
+      } else {
+        // 2. Register PROTECTED routes
+        // By placing this AFTER the public routes, we rely on Express's top-down matching.
+        // However, to prevent the public routes from being hit by this middleware,
+        // we ensure the proxy logic is clean.
+        app.use(service.path, authenticate, proxy);
 
-      app.use(service.path, authenticate, createProxyMiddleware(proxyOptions));
-
-      logger.info(`Configured proxy for ${service.name} at ${service.path}`);
+        logger.info(`Registered Protected Path: [${service.name}] ${service.path}`);
+      }
     });
   }
 }

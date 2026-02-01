@@ -29,9 +29,14 @@ export class JwtService {
     accessExpiration: number;
     refreshExpiration: number;
   }) {
-    if (!accessSecret || !refreshSecret || !accessExpiration || !refreshExpiration) {
-      throw new Error("JwtService constructor requires ");
+    if (!accessSecret || !refreshSecret) {
+      throw new Error("JwtService requires secrets");
     }
+
+    if (!accessExpiration || !refreshExpiration) {
+      throw new Error("JwtService requires expiration config");
+    }
+
     this.accessSecret = accessSecret;
     this.refreshSecret = refreshSecret;
     this.accessExpiration = accessExpiration;

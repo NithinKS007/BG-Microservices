@@ -1,6 +1,7 @@
 import { UserEntity } from "../entity/user.entity";
 import { JwtService } from "../../../utils/src";
 import { UserServiceGrpcClient } from "../grpc/user.client";
+import { ValidationError } from "../../../utils/src/error.handling.middleware";
 
 export class AuthService {
   private readonly userServiceGrpcClient: UserServiceGrpcClient;
@@ -16,7 +17,18 @@ export class AuthService {
     this.jwtService = jwtService;
   }
 
-  async signup(data: { name: string; email: string; password: string }): Promise<void> {
+  async signup(data: {
+    name: string;
+    email: string;
+    password: string;
+    role?: "admin";
+  }): Promise<void> {
+    const { email, password, name, role } = data;
+    if (!email || !password || !name) throw new Error("Email,password and name are required");
+    
+    if (role === "admin") {
+      throw new ValidationError("Invalid role, Please try again later");
+    }
     await this.userServiceGrpcClient.signupUser({
       ...data,
     });
@@ -26,23 +38,25 @@ export class AuthService {
     email: string;
     password: string;
   }): Promise<UserEntity & { accessToken: string; refreshToken: string }> {
+    const { email, password } = data;
+    if (!email || !password) throw new Error("Email and password are required");
     const res = await this.userServiceGrpcClient.signinUser(data);
     if (!res.success || !res.user) {
       throw new Error("Authentication failed");
     }
 
-    const { id, email, role, ...rest } = res.user;
+    const { id, email: userEmail, role, ...rest } = res.user;
 
-    if (!id || !email || !role) {
+    if (!id || !userEmail || !role) {
       throw new Error("Invalid user data");
     }
 
-    const accessToken = await this.jwtService.createAT({ id, email, role });
-    const refreshToken = await this.jwtService.createRT({ id, email, role });
+    const accessToken = await this.jwtService.createAT({ id, email: userEmail, role });
+    const refreshToken = await this.jwtService.createRT({ id, email: userEmail, role });
 
     return {
       id,
-      email,
+      email: userEmail,
       role,
       ...rest,
       accessToken,

@@ -9,7 +9,7 @@ export class UserGrpcController {
     this.userService = userService;
   }
 
-  signup(
+  signupUser(
     call: ServerUnaryCall<SignupUserRequest, SignupUserResponse>,
     callback: SendUnaryData<SignupUserResponse>,
   ): void {
@@ -24,7 +24,7 @@ export class UserGrpcController {
       .catch((err) => callback(toGrpcError(err), null));
   }
 
-  signin(
+  signinUser(
     call: ServerUnaryCall<SigninUserRequest, SigninUserResponse>,
     callback: SendUnaryData<SigninUserResponse>,
   ) {

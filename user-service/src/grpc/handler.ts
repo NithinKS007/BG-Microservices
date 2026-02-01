@@ -5,6 +5,6 @@ import { UserGrpcController } from "./user.server";
 const controller = container.resolve<UserGrpcController>("userGrpcController");
 
 export const handlers: GrpcHandler = {
-  SignupUser: controller.signup.bind(controller),
-  SigninUser: controller.signin.bind(controller),
+  signupUser: controller.signupUser.bind(controller),
+  signinUser: controller.signinUser.bind(controller),
 };

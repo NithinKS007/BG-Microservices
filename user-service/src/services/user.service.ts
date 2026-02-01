@@ -1,3 +1,4 @@
+import { UserEntity } from "../entity/user.entity";
 import { comparePassword, hashPassword } from "../../../utils/src";
 import {
   ConflictError,
@@ -12,39 +13,31 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
-  async findUserById(id: string): Promise<{
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    createAt: Date;
-    updateAt: Date;
-  } | null> {
+  async findUserById(id: string): Promise<UserEntity | null> {
+    if (!id) throw new ValidationError("User id is required");
     return await this.userRepository.findUserById(id);
   }
 
   async signup(data: { name: string; email: string; password: string }): Promise<void> {
-    const userData = await this.userRepository.findUserByEmail(data.email);
+    const { email, password, name } = data;
+    if (!email || !password || !name)
+      throw new ValidationError("Email,password and name are required");
+    const userData = await this.userRepository.findUserByEmail(email);
     if (userData) throw new ConflictError("Email already exists");
-    await this.userRepository.createUser({ ...data, password: await hashPassword(data.password) });
+    await this.userRepository.createUser({ ...data, password: await hashPassword(password) });
   }
 
-  async signin(data: { email: string; password: string }): Promise<{
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }> {
-    const userData = await this.userRepository.findUserByEmail(data.email);
+  async signin(data: { email: string; password: string }): Promise<UserEntity> {
+    const { email, password } = data;
+    if (!email || !password) throw new ValidationError("Email and password are required");
+    const userData = await this.userRepository.findUserByEmail(email);
 
     if (!userData) throw new NotFoundError("User not found,Please try again later");
 
     const isPasswordValid = await comparePassword(data.password, userData.password);
     if (!isPasswordValid) throw new ValidationError("Password is incorrect");
 
-    const { password, ...safeUser } = userData;
+    const { password: userPassword, ...safeUser } = userData;
     return safeUser;
   }
 }

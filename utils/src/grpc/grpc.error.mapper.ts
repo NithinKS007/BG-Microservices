@@ -31,21 +31,23 @@ export const toGrpcError = (err: Error): grpc.ServiceError => {
 };
 
 export const fromGrpcError = (err: grpc.ServiceError): Error => {
+  const cleanMessage = err.message.replace(/^(\d+)\s+[A-Z_]+:\s+/, "");
+
   switch (err.code) {
     case grpc.status.ALREADY_EXISTS:
-      return new ConflictError(err.message);
+      return new ConflictError(cleanMessage);
     case grpc.status.INVALID_ARGUMENT:
-      return new ValidationError(err.message);
+      return new ValidationError(cleanMessage);
     case grpc.status.NOT_FOUND:
-      return new NotFoundError(err.message);
+      return new NotFoundError(cleanMessage);
     case grpc.status.PERMISSION_DENIED:
-      return new ForbiddenError(err.message);
+      return new ForbiddenError(cleanMessage);
     case grpc.status.UNAUTHENTICATED:
-      return new UnauthorizedError(err.message);
+      return new UnauthorizedError(cleanMessage);
     case grpc.status.INTERNAL:
     case grpc.status.UNKNOWN:
-      return new DatabaseError(err.message);
+      return new DatabaseError(cleanMessage);
     default:
-      return new DatabaseError(err.message);
+      return new DatabaseError(cleanMessage);
   }
 };

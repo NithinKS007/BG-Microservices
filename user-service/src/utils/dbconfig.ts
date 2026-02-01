@@ -21,7 +21,17 @@ export const prisma = new PrismaClient({
   errorFormat: "pretty",
 }).$extends({
   query: {
-    async $allOperations({ operation, model, args, query }) {
+    async $allOperations({
+      operation,
+      model,
+      args,
+      query,
+    }: {
+      operation: string;
+      model?: string;
+      args: unknown;
+      query: (args: unknown) => Promise<unknown>;
+    }) {
       const start = Date.now();
       const result = await query(args);
       const duration = Date.now() - start;
