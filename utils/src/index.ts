@@ -6,7 +6,7 @@ export { notFoundMiddleware } from "./not.found.middleware";
 export { RateLimiter } from "./rate.limit.middleware";
 export { codeGenerator } from "./code-generator";
 export { logger } from "./logger";
-export { DatabaseAdapter } from "./IBase.repository";
+export { DatabaseAdapter } from "./IBase.repository"
 export { KafkaService } from "./kafka.service";
 export { JwtService } from "./jwt.service";
 export { createGrpcClient } from "./grpc/grpc.client";
